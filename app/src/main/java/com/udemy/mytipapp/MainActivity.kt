@@ -1,6 +1,7 @@
 package com.udemy.mytipapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -11,6 +12,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.udemy.mytipapp.components.InputFild
 import com.udemy.mytipapp.ui.theme.MyTipAppTheme
+import com.udemy.mytipapp.widgets.RoundIconButton
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @ExperimentalComposeUiApi
@@ -81,6 +86,17 @@ fun TopHeader(totalPerPerson: Double = 134.9852){
 @Preview
 @Composable
 fun MainContent(){
+    BillForm() {billAmt ->
+        Log.d("AMT", "Main Content: $billAmt")
+
+    }
+
+}
+
+
+@ExperimentalComposeUiApi
+@Composable
+fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit){
 
     val totalBillState = remember{
         mutableStateOf("")
@@ -98,7 +114,9 @@ fun MainContent(){
         shape = RoundedCornerShape(corner = CornerSize(8.dp)),
         border = BorderStroke(width = 1.dp, color = Color.LightGray)
     ) {
-        Column() {
+        Column(modifier = Modifier.padding(6.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start) {
             InputFild(
                 valueState = totalBillState,
                 labelId = "Enter Bill",
@@ -107,21 +125,33 @@ fun MainContent(){
                 onAction = KeyboardActions{
                     if(!validState) return@KeyboardActions
 
-                    //TODO onvaluechange
+                    onValueChange(totalBillState.value.trim())
+
                     keyboardController?.hide()
-                }
+                })
 
-            )
+            if(validState) {
+                Row(modifier = Modifier.padding(3.dp),
+                horizontalArrangement = Arrangement.Start) {
+                    Text(text = "Split",
+                    modifier = Modifier.align(
+                        alignment = Alignment.CenterVertically
+                    ))
+                    Spacer(modifier = Modifier.width(120.dp))
+                    Row(modifier = Modifier
+                        .padding(horizontal = 3.dp),
+                        horizontalArrangement = Arrangement.End) {
+                        RoundIconButton(
+                            imageVector = Icons.Default.Remove,
+                            onClick = { Log.d("Split -", "BillForm: Remove")})
+
+                        RoundIconButton(
+                            imageVector = Icons.Default.Add,
+                            onClick = { Log.d("Split +", "BillForm: ADD")})
+
+                    }
+                }                
+            } else {Box(){}}
         }
-    }
-}
-
-//@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MyTipAppTheme {
-       MyApp {
-           Text(text = "Hello Again!")
-       }
     }
 }
