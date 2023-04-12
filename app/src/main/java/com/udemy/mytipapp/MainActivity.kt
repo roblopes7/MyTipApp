@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.udemy.mytipapp.components.InputFild
 import com.udemy.mytipapp.ui.theme.MyTipAppTheme
+import com.udemy.mytipapp.util.calculateTotalPerPerson
 import com.udemy.mytipapp.util.calculateTotalTip
 import com.udemy.mytipapp.widgets.RoundIconButton
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
@@ -128,10 +129,15 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
         mutableStateOf(0.0)
     }
 
+    val totalPerPersonState = remember {
+        mutableStateOf(0.0)
+    }
+
+
     val range = IntRange(start = 1, endInclusive = 100)
 
     Column() {
-        TopHeader()
+        TopHeader(totalPerPerson = totalPerPersonState.value)
 
         Surface(
             modifier = Modifier
@@ -158,7 +164,7 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                         keyboardController?.hide()
                     })
 
-                if (true) {
+                if (validState) {
                     Row(
                         modifier = Modifier.padding(3.dp),
                         horizontalArrangement = Arrangement.Start
@@ -179,8 +185,12 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                                 imageVector = Icons.Default.Remove,
                                 onClick = {
                                     splitByState.value =
-                                        if(splitByState.value > 1) splitByState.value - 1
+                                        if (splitByState.value > 1) splitByState.value - 1
                                         else 1
+                                    totalPerPersonState.value = calculateTotalPerPerson(
+                                        totalBill = totalBillState.value.toDouble(),
+                                        tipPercentage = tipPercentage,
+                                        splitBy = splitByState.value)
                                 })
                             Text(
                                 text = "${splitByState.value}", modifier = Modifier
@@ -190,9 +200,13 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                             RoundIconButton(
                                 imageVector = Icons.Default.Add,
                                 onClick = {
-                                    if(splitByState.value < range.last){
+                                    if (splitByState.value < range.last) {
                                         splitByState.value = splitByState.value + 1
                                     }
+                                    totalPerPersonState.value = calculateTotalPerPerson(
+                                        totalBill = totalBillState.value.toDouble(),
+                                        tipPercentage = tipPercentage,
+                                        splitBy = splitByState.value)
                                 })
 
                         }
@@ -220,11 +234,20 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
 
                         //Slider
                         Slider(
-                            value = sliderPositionState.value, onValueChange = { newVal ->
+                            value = sliderPositionState.value,
+                            onValueChange = { newVal ->
                                 sliderPositionState.value = newVal
-                                tipAmountState.value = calculateTotalTip(totalBill = totalBillState.value.toDouble(),
-                                    tipPercentage = tipPercentage)
-                            }, modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                                tipAmountState.value = calculateTotalTip(
+                                    totalBill = totalBillState.value.toDouble(),
+                                    tipPercentage = tipPercentage
+                                )
+                                totalPerPersonState.value = calculateTotalPerPerson(
+                                    totalBill = totalBillState.value.toDouble(),
+                                    tipPercentage = tipPercentage,
+                                    splitBy = splitByState.value
+                                )
+                            },
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                             //steps = 5
                         )
                     }
