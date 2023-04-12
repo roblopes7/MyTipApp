@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -92,17 +93,38 @@ fun TopHeader(totalPerPerson: Double = 134.9852) {
 @Preview
 @Composable
 fun MainContent() {
-    BillForm() { billAmt ->
-        Log.d("AMT", "Main Content: $billAmt")
 
+    val splitByState = remember {
+        mutableStateOf(3)
     }
+
+    val tipAmountState = remember {
+        mutableStateOf(0.0)
+    }
+
+    val totalPerPersonState = remember {
+        mutableStateOf(0.0)
+    }
+
+    val range = IntRange(start = 1, endInclusive = 100)
+
+    BillForm(splitByState = splitByState,
+        tipAmountState = tipAmountState,
+        totalPerPersonState = totalPerPersonState,
+        range = range){}
 
 }
 
 
 @ExperimentalComposeUiApi
 @Composable
-fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
+fun BillForm(
+    modifier: Modifier = Modifier,
+    range: IntRange = 1..100,
+    splitByState: MutableState<Int>,
+    tipAmountState: MutableState<Double>,
+    totalPerPersonState: MutableState<Double>,
+    onValueChange: (String) -> Unit) {
 
     val totalBillState = remember {
         mutableStateOf("")
@@ -121,33 +143,18 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
 
     val tipPercentage = (sliderPositionState.value * 100).toInt()
 
-    val splitByState = remember {
-        mutableStateOf(3)
-    }
-
-    val tipAmountState = remember {
-        mutableStateOf(0.0)
-    }
-
-    val totalPerPersonState = remember {
-        mutableStateOf(0.0)
-    }
-
-
-    val range = IntRange(start = 1, endInclusive = 100)
-
     Column() {
         TopHeader(totalPerPerson = totalPerPersonState.value)
 
         Surface(
-            modifier = Modifier
+            modifier = modifier
                 .padding(start = 12.dp, end = 12.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(corner = CornerSize(8.dp)),
             border = BorderStroke(width = 1.dp, color = Color.LightGray)
         ) {
             Column(
-                modifier = Modifier.padding(6.dp),
+                modifier = modifier.padding(6.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ) {
@@ -166,18 +173,18 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
 
                 if (validState) {
                     Row(
-                        modifier = Modifier.padding(3.dp),
+                        modifier = modifier.padding(3.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(
                             text = "Split",
-                            modifier = Modifier.align(
+                            modifier = modifier.align(
                                 alignment = Alignment.CenterVertically
                             )
                         )
-                        Spacer(modifier = Modifier.width(120.dp))
+                        Spacer(modifier = modifier.width(120.dp))
                         Row(
-                            modifier = Modifier
+                            modifier = modifier
                                 .padding(horizontal = 3.dp),
                             horizontalArrangement = Arrangement.End
                         ) {
@@ -193,7 +200,7 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                                         splitBy = splitByState.value)
                                 })
                             Text(
-                                text = "${splitByState.value}", modifier = Modifier
+                                text = "${splitByState.value}", modifier = modifier
                                     .align(Alignment.CenterVertically)
                                     .padding(start = 9.dp, end = 9.dp)
                             )
@@ -213,15 +220,15 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
 
                         //Tip Row
                     }
-                    Row(modifier = Modifier) {
+                    Row(modifier = modifier) {
                         Text(
                             text = "Text",
-                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
+                            modifier = modifier.align(alignment = Alignment.CenterVertically)
                         )
-                        Spacer(modifier = Modifier.width(200.dp))
+                        Spacer(modifier = modifier.width(200.dp))
                         Text(
                             text = "$ ${tipAmountState.value}",
-                            modifier = Modifier.align(alignment = Alignment.CenterVertically)
+                            modifier = modifier.align(alignment = Alignment.CenterVertically)
                         )
                     }
 
@@ -230,7 +237,7 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = "${tipPercentage}%", fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = modifier.height(14.dp))
 
                         //Slider
                         Slider(
@@ -247,7 +254,7 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                                     splitBy = splitByState.value
                                 )
                             },
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            modifier = modifier.padding(start = 16.dp, end = 16.dp),
                             //steps = 5
                         )
                     }
