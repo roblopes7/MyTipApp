@@ -222,7 +222,7 @@ fun BillForm(
                     }
                     Row(modifier = modifier) {
                         Text(
-                            text = "Text",
+                            text = "Tip",
                             modifier = modifier.align(alignment = Alignment.CenterVertically)
                         )
                         Spacer(modifier = modifier.width(200.dp))
