@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.udemy.mytipapp.components.InputFild
 import com.udemy.mytipapp.ui.theme.MyTipAppTheme
+import com.udemy.mytipapp.util.calculateTotalTip
 import com.udemy.mytipapp.widgets.RoundIconButton
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
@@ -112,12 +113,19 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+
     val sliderPositionState = remember {
         mutableStateOf(0f)
     }
 
+    val tipPercentage = (sliderPositionState.value * 100).toInt()
+
     val splitByState = remember {
         mutableStateOf(3)
+    }
+
+    val tipAmountState = remember {
+        mutableStateOf(0.0)
     }
 
     val range = IntRange(start = 1, endInclusive = 100)
@@ -198,7 +206,7 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                         )
                         Spacer(modifier = Modifier.width(200.dp))
                         Text(
-                            text = "$33.00",
+                            text = "$ ${tipAmountState.value}",
                             modifier = Modifier.align(alignment = Alignment.CenterVertically)
                         )
                     }
@@ -207,16 +215,17 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "33%")
+                        Text(text = "${tipPercentage}%", fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(14.dp))
 
                         //Slider
                         Slider(
                             value = sliderPositionState.value, onValueChange = { newVal ->
-                                Log.d("Slider", "BillForm: $newVal")
                                 sliderPositionState.value = newVal
+                                tipAmountState.value = calculateTotalTip(totalBill = totalBillState.value.toDouble(),
+                                    tipPercentage = tipPercentage)
                             }, modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-                            steps = 5
+                            //steps = 5
                         )
                     }
                 } else {
@@ -226,3 +235,6 @@ fun BillForm(modifier: Modifier = Modifier, onValueChange: (String) -> Unit) {
         }
     }
 }
+
+
+
